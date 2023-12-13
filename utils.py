@@ -26,3 +26,17 @@ def prepocess_data_for_lstmcrf(word_lists, tag_lists, test = False):
         if not test: # 如果是测试数据，就不需要加end token了
             tag_lists[i].append("<end>")
     return word_lists, tag_lists
+
+def sort_by_lengts(word_lists, tag_lists):
+    pairs = list(
+        zip(word_lists, tag_lists)
+    )
+    
+    indices = sorted(
+        range(len(pairs)),
+        key = lambda k: len(pairs[k][0]),
+        reverse = True
+    )
+    pairs = [pairs[i] for i in indices]
+    word_lists, tag_lists = list(zip(*pairs))
+    return word_lists, tag_lists, indices

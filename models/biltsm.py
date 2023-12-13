@@ -1,5 +1,5 @@
 import torch.nn as nn
-
+from torch.nn.utils.rnn import pad_packed_sequence, pack_padded_sequence
 class BiLSTM(nn.Module):
     def __init__(self, vocab_size, emb_size, hidden_size, out_size):
         """初始化参数：
@@ -23,4 +23,11 @@ class BiLSTM(nn.Module):
         )
     
     def forward(self, sents_tensor, lengths):
-        pass
+        emb = self.embedding(sents_tensor) # B,L,emb_size
+        
+        packed = pack_padded_sequence(emb, lengths, batch_first = True)
+        rnn_out, _ = self.bilstm(packed)
+        # rnn_out:[B, L, hidden_size*2]
+        rnn_out, _ = pad_packed_sequence(rnn_out, batch_first = True)
+        scores = self.lin(rnn_out)# [B, L, out_size]
+        return scores
